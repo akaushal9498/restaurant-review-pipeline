@@ -1,1 +1,9 @@
-pyspark
+pyspark==3.5.0
+boto3
+pandas
+sqlalchemy
+psycopg2-binary
+sqlite3
+apache-airflow
+python-dotenv
+dotenv
