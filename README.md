@@ -1,18 +1,16 @@
 # restaurant-review-pipeline
-Overview
-This project provides a data pipeline for processing both batch and streaming restaurant review data. The pipeline consists of two main components:
 
-Batch processing for Swiggy reviews
+# 🍽️ Restaurant Review Pipeline
 
-Streaming processing for Amazon reviews
+This project provides a complete **data pipeline** for processing both **batch and streaming restaurant review data**. It is divided into two main components:
 
-Recording Links
+- **Batch processing** for Swiggy reviews  
+- **Streaming processing** for Amazon reviews
 
-Batch - https://drive.google.com/file/d/1ORKnLmGTc9T8KMrsyCFSov0cimUk7UH5/view?usp=sharing
-Streaming - https://drive.google.com/file/d/1-3bangBOIj-sr0g0ZKTVKbQdn0dxyvXE/view?usp=sharing
+---
 
-Project Structure
-Copy
+## 📁 Project Structure
+
 restaurant-review-pipeline/
 ├── dags/
 │   └── swiggy_batch_etl.py          # Airflow DAG for batch processing
@@ -33,87 +31,82 @@ restaurant-review-pipeline/
 ├── README.md                         
 └── requirements.txt                  # Python dependencies
 
-Batch Processing (Swiggy Reviews)
-Description
-The batch processing pipeline:
+---
 
-Flattens the nested Swiggy review data
+## 🎬 Recording Links
 
-Ingests the processed data
+- **Batch (Swiggy)**: [Watch here](https://drive.google.com/file/d/1ORKnLmGTc9T8KMrsyCFSov0cimUk7UH5/view?usp=sharing)  
+- **Streaming (Amazon)**: [Watch here](https://drive.google.com/file/d/1-3bangBOIj-sr0g0ZKTVKbQdn0dxyvXE/view?usp=sharing)
 
-Loads it into Redshift
+---
 
-How to Run
-Ensure you have Apache Airflow installed and configured
+## 📦 Batch Processing: Swiggy Reviews
 
-Place the swiggy_batch_etl.py file in your Airflow dags directory
+### 📌 Description
 
-The DAG will automatically be picked up by Airflow
+The batch pipeline:
+- Flattens nested Swiggy review JSON
+- Ingests the processed data
+- Loads it into **Amazon Redshift**
 
-Trigger the DAG manually or wait for its scheduled execution
+### ▶️ How to Run
 
-Dependencies
-Apache Airflow
+1. Ensure **Apache Airflow** is installed and configured.
+2. Place `swiggy_batch_etl.py` in your Airflow DAGs directory.
+3. Airflow will auto-detect the DAG.
+4. Trigger the DAG manually or let it run as per schedule.
 
-Python dependencies listed in requirements.txt
+### 🧩 Dependencies
 
-Streaming Processing (Amazon Reviews)
-Description
+- Apache Airflow
+- Python packages listed in `requirements.txt`
+
+---
+
+## 🔁 Streaming Processing: Amazon Reviews
+
+### 📌 Description
+
 The streaming pipeline:
+- Simulates a stream of Amazon restaurant reviews
+- Processes the stream in 5-second intervals
+- Ingests the reviews into the system
 
-Simulates a stream of Amazon restaurant reviews
+### ▶️ How to Run
 
-Processes the stream in 5-second intervals
-
-Ingests the data into the system
-
-How to Run
-Run the stream simulator:
-
-bash
-Copy
-python ingestion/amazon_review_stream.py
-In a separate terminal, run the ingestion process:
-
-bash
-Copy
+**Terminal 1: Start the stream**
 python ingestion/ingest_amazon_stream.py
-The ingestion process will read from the stream every 5 seconds
 
-Dependencies
+**Terminal 2: Start the ingestion
+The ingestion script reads new data every 5 seconds.
+
+
+🧩 Dependencies
 Python 3.x
 
-Dependencies listed in requirements.txt
+Python packages listed in requirements.txt
 
-Data Warehouse Loading
-Both batch and streaming processed data will be loaded into Redshift. Ensure you have:
 
-Redshift credentials properly configured
+📦 Requirements
+Install all required Python packages:
 
-Necessary permissions set up
-
-Warehouse loader scripts in place
-
-Requirements
-Install all required dependencies by running:
-
-bash
-Copy
 pip install -r requirements.txt
-Assumptions
-For batch processing, data is available in the expected format in the specified location
 
-For streaming, the stream source is reliable and consistently available
 
-Redshift cluster is properly configured and accessible
+✅ Assumptions
+Swiggy batch data is available in the correct format and path
 
-Airflow is properly set up for batch processing
+Amazon streaming data is consistently emitted by the simulator
 
-Python environment has all necessary permissions to read/write files and access databases
+Redshift cluster is accessible and properly configured
 
-Troubleshooting
-If batch processing fails, check Airflow logs for specific errors
+Airflow is fully operational
 
-If streaming stops, verify both the stream simulator and ingestion process are running
+Your Python environment can read/write files and connect to databases
 
-For database connection issues, verify credentials and network access
+🧰 Troubleshooting
+❌ Batch failure? → Check Airflow logs in the UI
+
+💤 Streaming stopped? → Ensure both simulator and ingestion scripts are running
+
+🔑 Database errors? → Double-check SQLite and Redshift credentials and paths
