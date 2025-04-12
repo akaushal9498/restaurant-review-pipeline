@@ -1,17 +1,27 @@
-# File: stream_processor.py
-
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import current_timestamp
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType
 
 # Init Spark
 spark = SparkSession.builder.appName("StreamProcessor").getOrCreate()
 spark.sparkContext.setLogLevel("WARN")
 
-# You can extract schema using a one-time batch read
-sample_df = spark.read.parquet("parquet_output/")
-schema = sample_df.schema
+# Define schema manually
+schema = StructType([
+    StructField("Id", IntegerType(), True),  # Id is INTEGER
+    StructField("ProductId", StringType(), True),
+    StructField("UserId", StringType(), True),
+    StructField("ProfileName", StringType(), True),
+    StructField("HelpfulnessNumerator", IntegerType(), True),
+    StructField("HelpfulnessDenominator", IntegerType(), True),
+    StructField("Score", IntegerType(), True),
+    StructField("Time", IntegerType(), True),
+    StructField("Summary", StringType(), True),
+    StructField("Text", StringType(), True),
+    StructField("ingest_time", TimestampType(), True)
+])
 
-# Streaming read from parquet_output
+# Streaming read from parquet_output with the defined schema
 df_stream = spark.readStream.schema(schema).parquet("parquet_output/")
 
 # Add current timestamp

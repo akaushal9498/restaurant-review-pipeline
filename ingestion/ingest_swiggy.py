@@ -483,7 +483,7 @@ def cleanup_chunks(chunk_files, delete=True):
 def main():
     # Configuration
     input_path = "/Users/anupkaushal/PycharmProjects/restaurant-review-pipeline/ingestion/data/flat_restaurants.json"
-    output_path = "data/refined/streaming/processed"
+    output_path = "data/refined/processed"
     chunks_dir = "data/temp_chunks"
 
     # Check if input file exists

@@ -66,7 +66,7 @@ while True:
     df = df.withColumn("ingest_time", current_timestamp())
 
     # Save as Parquet
-    df.write.mode("append").parquet("parquet_output/chunk_{}.parquet".format(chunk_id))
+    df.write.mode("append").parquet("parquet_output".format(chunk_id))
 
     print(f"Chunk {chunk_id} written.")
 

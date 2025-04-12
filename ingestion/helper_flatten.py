@@ -1,6 +1,8 @@
 import json
 import os
+import time
 from tqdm import tqdm
+import psutil  # For memory usage (optional, install with: pip install psutil)
 
 # Config
 INPUT_FILE = "/Users/anupkaushal/PycharmProjects/restaurant-review-pipeline/data/data.json"
@@ -13,14 +15,18 @@ os.makedirs("data", exist_ok=True)
 restaurant_count = 0
 menu_item_count = 0
 
+start_time = time.time()
+
+process = psutil.Process(os.getpid())
+
 with open(INPUT_FILE, 'r') as infile:
-    print(f"Loading data from {INPUT_FILE}...")
+    print(f"🔍 Loading data from {INPUT_FILE}...")
     raw_data = json.load(infile)
 
-print("Flattening data...")
+print("⚙️ Flattening data...")
 
 with open(OUTPUT_FLAT_RESTAURANTS, 'w') as rest_out, open(OUTPUT_FLAT_MENU, 'w') as menu_out:
-    for city, city_info in tqdm(raw_data.items()):
+    for city, city_info in tqdm(raw_data.items(), desc="Processing cities"):
         city_link = city_info.get("link")
         restaurants = city_info.get("restaurants", {})
 
@@ -57,6 +63,13 @@ with open(OUTPUT_FLAT_RESTAURANTS, 'w') as rest_out, open(OUTPUT_FLAT_MENU, 'w')
                     menu_out.write(json.dumps(flat_dish) + "\n")
                     menu_item_count += 1
 
-print(f"✅ Done! Extracted {restaurant_count} restaurants and {menu_item_count} menu items.")
-print(f"🍽 Restaurants file: {OUTPUT_FLAT_RESTAURANTS}")
-print(f"🥘 Menu file: {OUTPUT_FLAT_MENU}")
+end_time = time.time()
+duration = end_time - start_time
+memory_mb = process.memory_info().rss / (1024 * 1024)
+
+print("\n✅ Flattening Complete!")
+print(f"🍽 Restaurants: {restaurant_count}")
+print(f"🥘 Menu Items  : {menu_item_count}")
+print(f"⏱️ Duration    : {duration:.2f} seconds")
+print(f"🧠 Peak Memory : {memory_mb:.2f} MB")
+print(f"📄 Output Files: {OUTPUT_FLAT_RESTAURANTS}, {OUTPUT_FLAT_MENU}")
