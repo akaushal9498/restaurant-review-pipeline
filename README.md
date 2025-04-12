@@ -13,23 +13,23 @@ This project provides a complete **data pipeline** for processing both **batch a
 
 restaurant-review-pipeline/
 ├── dags/
-│   └── swiggy_batch_etl.py          # Airflow DAG for batch processing
+│   └── swiggy_batch_etl.py
 ├── data/
-│   ├── data.json                     # Sample data file
-│   └── database.sqlite               # SQLite database file
+│   ├── data.json
+│   └── database.sqlite
 ├── ingestion/
-│   ├── data/                         # Data directory
-│   ├── amazon_review_stream.py       # Amazon review stream processor
-│   ├── constants.py                  # Project constants
-│   ├── helper_flatten.py             # Helper for flattening data
-│   ├── ingest_amazon_stream.py       # Amazon review ingestion
-│   ├── ingest_swiggy.py              # Swiggy review ingestion
-│   └── utils.py                      # Utility functions
+│   ├── data/
+│   ├── amazon_review_stream.py
+│   ├── constants.py
+│   ├── helper_flatten.py
+│   ├── ingest_amazon_stream.py
+│   ├── ingest_swiggy.py
+│   └── utils.py
 ├── jar_files/
-│   └── sqlite-jdbc-3.49.1.0.jar      # JDBC driver for SQLite
-├── warehouse_loader/                 # Data warehouse loading scripts
+│   └── sqlite-jdbc-3.49.1.0.jar
+├── warehouse_loader/
 ├── README.md                         
-└── requirements.txt                  # Python dependencies
+└── requirements.txt
 
 ---
 
