@@ -1,50 +1,82 @@
-import sqlite3
-import pandas as pd
+# from pyspark.sql import SparkSession
+#
+# # Path to the downloaded SQLite JDBC driver JAR file
+#
+# # Initialize Spark session with the JDBC driver
+
+#
+# # Your SQLite JDBC URL and properties
+# jdbc_url = "jdbc:sqlite:/Users/anupkaushal/PycharmProjects/restaurant-review-pipeline/data/database.sqlite"
+# properties = {
+#     "driver": "org.sqlite.JDBC"
+# }
+#
+# # Read data from SQLite table
+# df = spark.read.jdbc(url=jdbc_url, table="Reviews", properties=properties)
+# df.show()
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import current_timestamp
 import time
-from utils.logger import get_logger
-from utils.config import SQLITE_DB_PATH, STREAM_OUTPUT_PATH
 
-logger = get_logger("IngestAmazonStream")
+jdbc_driver_path = "/Users/anupkaushal/PycharmProjects/restaurant-review-pipeline/jar_files/sqlite-jdbc-3.49.1.0.jar"
 
-BATCH_SIZE = 100
-SLEEP_TIME = 10  # seconds
+# Initialize SparkSession
+spark = SparkSession.builder \
+    .appName("JSON Processing") \
+    .master("local[*]") \
+    .config("spark.driver.memory", "4g") \
+    .config("spark.executor.memory", "4g") \
+    .config("spark.driver.maxResultSize", "4g") \
+    .config("spark.sql.shuffle.partitions", "20") \
+    .config("spark.default.parallelism", "20") \
+    .config("spark.sql.files.ignoreCorruptFiles", "true") \
+    .config("spark.jars", jdbc_driver_path) \
+    .getOrCreate()
 
+# SQLite JDBC config
+db_path = "/Users/anupkaushal/PycharmProjects/restaurant-review-pipeline/data/database.sqlite"
+jdbc_url = f"jdbc:sqlite:{db_path}"
+table_name = "Reviews"
 
-def fetch_latest_reviews(cursor, last_id):
-    query = f"""
-        SELECT * FROM Reviews
-        WHERE Id > {last_id}
-        ORDER BY Id ASC
-        LIMIT {BATCH_SIZE};
-    """
-    return pd.read_sql_query(query, con=conn)
+# Simulate streaming with chunks
+chunk_size = 2000  # Estimate this based on your average row size to ~10 MB
+offset = 0
+chunk_id = 1
 
+while True:
+    print(f"Reading chunk {chunk_id}...")
 
-def append_to_stream_file(df):
-    df.to_csv(STREAM_OUTPUT_PATH, mode='a', index=False, header=not os.path.exists(STREAM_OUTPUT_PATH))
+    # Create JDBC query using subquery with LIMIT + OFFSET
+    query = f"(SELECT * FROM {table_name} LIMIT {chunk_size} OFFSET {offset}) AS chunk"
 
+    # Read chunk into Spark DataFrame
+    df = spark.read.format("jdbc") \
+        .option("url", jdbc_url) \
+        .option("dbtable", query) \
+        .option("driver", "org.sqlite.JDBC") \
+        .load()
 
-if __name__ == '__main__':
-    import os
+    # Break if no more data
+    if df.rdd.isEmpty():
+        print("No more data to read.")
+        break
 
-    logger.info("Starting streaming ingestion from SQLite")
-    conn = sqlite3.connect(SQLITE_DB_PATH)
-    cursor = conn.cursor()
+    # Add current timestamp
+    df = df.withColumn("ingest_time", current_timestamp())
 
-    last_id = 0
+    # Save as Parquet
+    df.write.mode("append").parquet("parquet_output/chunk_{}.parquet".format(chunk_id))
 
-    while True:
-        try:
-            new_data = fetch_latest_reviews(cursor, last_id)
-            if not new_data.empty:
-                append_to_stream_file(new_data)
-                last_id = new_data['Id'].max()
-                logger.info(f"Fetched {len(new_data)} new rows. Last ID: {last_id}")
-            else:
-                logger.info("No new data. Sleeping...")
-            time.sleep(SLEEP_TIME)
-        except Exception as e:
-            logger.error(f"Error during streaming ingestion: {e}")
-            break
+    print(f"Chunk {chunk_id} written.")
 
-    conn.close()
+    # Sleep to simulate streaming delay
+    time.sleep(5)
+
+    # Update for next chunk
+    offset += chunk_size
+    chunk_id += 1
+
+# Stop Spark session
+spark.stop()
+
